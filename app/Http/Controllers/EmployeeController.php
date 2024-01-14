@@ -8,6 +8,8 @@ use PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EmployeeExport;
 use App\Imports\EmployeeImport;
+use Illuminate\Support\Facades\Session;
+use App\Models\Religion;
 
 class EmployeeController extends Controller
 {
@@ -15,12 +17,16 @@ class EmployeeController extends Controller
 
             
             $data = Employee::paginate(5);
+            
+            Session::put('halaman_url', request()->fullUrl());
+
             return view('datapegawai', compact('data'));
     
     }
 
     public function tambahpegawai(){
-        return view('tambahdata');
+        $dataagama = Religion::all();
+        return view('tambahdata', compact('dataagama'));
     }
 
     public function insertdata(Request $request){
@@ -45,6 +51,9 @@ class EmployeeController extends Controller
     public function updatedata(Request $request, $id){
         $data = Employee::find($id);
         $data->update($request->all());
+        if(session('halaman_url')){
+            return Redirect(session('halaman_url'))->with('success','Data Berhasil Diubah');
+        }
         return redirect()->route('pegawai')->with('success','Data Berhasil Diubah');
 
     }
